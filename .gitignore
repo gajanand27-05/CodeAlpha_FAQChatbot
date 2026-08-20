@@ -1,0 +1,17 @@
+# Virtual environment — never commit this. It's hundreds of MB and
+# machine-specific; requirements.txt is how others recreate it.
+venv/
+.venv/
+
+# Python bytecode cache, generated automatically when you run code.
+__pycache__/
+*.py[cod]
+
+# Streamlit local settings
+.streamlit/secrets.toml
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
