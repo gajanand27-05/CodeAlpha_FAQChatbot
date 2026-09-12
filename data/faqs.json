@@ -1,0 +1,154 @@
+[
+  {
+    "question": "What is machine learning?",
+    "answer": "Machine learning is a branch of AI where a program improves at a task by finding patterns in data instead of following rules a human wrote out by hand. You give it examples, it works out the rule itself."
+  },
+  {
+    "question": "What is the difference between supervised and unsupervised learning?",
+    "answer": "Supervised learning trains on labelled data - every example comes with the right answer attached, so the model learns the mapping from input to label. Unsupervised learning gets no labels; it looks for structure on its own, like grouping similar customers together. Classification and regression are supervised; clustering is unsupervised."
+  },
+  {
+    "question": "What is reinforcement learning?",
+    "answer": "Reinforcement learning trains an agent by reward and penalty rather than labelled examples. The agent takes an action, gets a score back from the environment, and adjusts to earn more reward over time. It is how game-playing and robotics agents are usually trained."
+  },
+  {
+    "question": "What is overfitting?",
+    "answer": "Overfitting is when a model memorises the training data instead of learning the general pattern. It scores brilliantly on data it has already seen and badly on anything new. The giveaway is a large gap between training accuracy and test accuracy."
+  },
+  {
+    "question": "What is underfitting?",
+    "answer": "Underfitting is the opposite of overfitting: the model is too simple to capture the real pattern, so it does poorly on both the training set and the test set. Usually the fix is a more expressive model, better features, or longer training."
+  },
+  {
+    "question": "How do you prevent overfitting?",
+    "answer": "Common fixes: get more training data, simplify the model, add regularization (L1 or L2), use dropout in neural networks, stop training early when validation loss starts rising, and use cross-validation so you notice the problem in the first place."
+  },
+  {
+    "question": "What is the bias-variance tradeoff?",
+    "answer": "Bias is error from wrong assumptions - the model is too simple and misses the pattern. Variance is error from sensitivity to noise - the model is too complex and chases the specific training data. Reducing one usually raises the other, and the goal is the balance point where total error is lowest."
+  },
+  {
+    "question": "Why do we split data into training and test sets?",
+    "answer": "Because measuring a model on the data it learned from tells you nothing about how it will behave on new data - it can just recite what it saw. Holding back a test set the model never touches during training gives you an honest estimate. A common split is 80% train, 20% test."
+  },
+  {
+    "question": "What is a validation set and how is it different from a test set?",
+    "answer": "The validation set is used during development to tune hyperparameters and compare model versions. The test set is touched once, at the very end, to report final performance. If you tune against your test set, it stops being an honest measure because you have leaked information about it into your choices."
+  },
+  {
+    "question": "What is cross-validation?",
+    "answer": "Cross-validation splits the data into k folds, trains on k-1 of them and tests on the one left out, then rotates so every fold gets a turn as the test set. Averaging the k scores gives a far more reliable estimate than a single split, which matters most when the dataset is small."
+  },
+  {
+    "question": "What is a confusion matrix?",
+    "answer": "A confusion matrix is a table of predictions against actual labels. For binary classification it has four cells: true positives, true negatives, false positives and false negatives. It shows not just how often the model is wrong but which way it is wrong, which a single accuracy number hides."
+  },
+  {
+    "question": "What is the difference between precision and recall?",
+    "answer": "Precision asks: of everything the model flagged as positive, how much really was positive. Recall asks: of everything that really was positive, how much did the model catch. Spam filters favour precision - a wrongly binned real email is costly. Disease screening favours recall - a missed case is far worse than a false alarm."
+  },
+  {
+    "question": "What is the F1 score?",
+    "answer": "The F1 score is the harmonic mean of precision and recall, giving one number that balances both. The harmonic mean is used instead of a plain average because it punishes a low value in either one, so you cannot score well by maxing out a single metric."
+  },
+  {
+    "question": "Why is accuracy a bad metric for imbalanced data?",
+    "answer": "If 99% of transactions are legitimate, a model that labels everything legitimate scores 99% accuracy while catching zero fraud. Accuracy hides the failure entirely. On imbalanced data use precision, recall, F1 or AUC instead."
+  },
+  {
+    "question": "What is gradient descent?",
+    "answer": "Gradient descent is the algorithm that trains most models. It measures the error, works out which direction each parameter should move to reduce it, and takes a small step that way. Repeated thousands of times, it walks the parameters downhill to a low-error setting."
+  },
+  {
+    "question": "What is a learning rate?",
+    "answer": "The learning rate is the size of the step gradient descent takes each update. Too large and training overshoots the minimum and diverges; too small and training crawls or stalls in a poor spot. It is usually the first hyperparameter worth tuning."
+  },
+  {
+    "question": "What is the difference between batch, mini-batch and stochastic gradient descent?",
+    "answer": "Batch gradient descent computes the gradient over the whole dataset before each update - accurate but slow. Stochastic uses a single example per update - fast and noisy. Mini-batch uses a small group, typically 32 to 256, and is the standard compromise used in practice."
+  },
+  {
+    "question": "What is a neural network?",
+    "answer": "A neural network is layers of simple units, each computing a weighted sum of its inputs and passing it through a non-linear function. Stacking layers lets the network build up increasingly abstract features, and training adjusts the weights so the output matches the target."
+  },
+  {
+    "question": "What is an activation function and why is it needed?",
+    "answer": "An activation function applies a non-linearity to each unit's output. Without one, stacking layers is pointless - a chain of linear operations collapses into a single linear operation, so a 50-layer network would be no more powerful than one layer. Common choices are ReLU, sigmoid and tanh."
+  },
+  {
+    "question": "What is ReLU?",
+    "answer": "ReLU, the rectified linear unit, outputs the input if it is positive and zero otherwise. It is the default activation for hidden layers because it is cheap to compute and does not saturate for large positive values, which keeps gradients flowing during training."
+  },
+  {
+    "question": "What is backpropagation?",
+    "answer": "Backpropagation is how a network works out each weight's share of the blame for the final error. It applies the chain rule from calculus backwards through the layers, producing the gradient for every weight so gradient descent knows which way to move each one."
+  },
+  {
+    "question": "What is the vanishing gradient problem?",
+    "answer": "In deep networks, gradients are multiplied together layer by layer as they travel backwards. If those values are small, the product shrinks toward zero and the early layers barely update, so the network stops learning. ReLU activations, batch normalisation and residual connections all exist partly to counter it."
+  },
+  {
+    "question": "What is the difference between a CNN and an RNN?",
+    "answer": "A CNN, convolutional neural network, slides filters over grid-shaped data and is the standard choice for images. An RNN, recurrent neural network, processes a sequence one step at a time while carrying a hidden state forward, which suits text, speech and time series."
+  },
+  {
+    "question": "What is an epoch, a batch and an iteration?",
+    "answer": "An epoch is one full pass over the training set. A batch is the group of samples processed before the weights are updated once. An iteration is one such update. With 1000 samples and a batch size of 100, one epoch equals ten iterations."
+  },
+  {
+    "question": "What is regularization?",
+    "answer": "Regularization discourages a model from becoming too complex by adding a penalty on large weights to the loss function. L2 shrinks weights smoothly toward zero; L1 can push them exactly to zero and so also does feature selection. Both are ways of fighting overfitting."
+  },
+  {
+    "question": "What is dropout?",
+    "answer": "Dropout randomly switches off a fraction of neurons on each training step, so the network cannot lean on any single unit and is forced to learn redundant, more robust features. It is turned off at prediction time, when the full network is used."
+  },
+  {
+    "question": "What is feature scaling and why does it matter?",
+    "answer": "Feature scaling puts numeric features on a comparable range, usually by normalisation to 0-1 or standardisation to mean 0 and standard deviation 1. Without it, a feature measured in the thousands dominates one measured in decimals, and distance-based and gradient-based algorithms are both distorted by that."
+  },
+  {
+    "question": "What is one-hot encoding?",
+    "answer": "One-hot encoding converts a categorical variable into one binary column per category, with a single 1 marking the active one. It is used instead of numbering the categories because numbering implies an order and a size relationship that does not exist - red is not twice blue."
+  },
+  {
+    "question": "What is feature engineering?",
+    "answer": "Feature engineering is creating better input variables from raw data - combining columns, extracting the day of week from a timestamp, binning ages into groups. On classical machine learning problems it usually improves results more than swapping in a fancier algorithm."
+  },
+  {
+    "question": "What is the curse of dimensionality?",
+    "answer": "As the number of features grows, the volume of the space grows exponentially and the data becomes sparse within it. Points end up roughly equally far apart, so distance-based methods lose their meaning and you need far more data to cover the space. Dimensionality reduction such as PCA is the usual response."
+  },
+  {
+    "question": "What is PCA?",
+    "answer": "PCA, principal component analysis, finds the directions along which the data varies most and re-expresses it using those directions. Keeping only the first few gives you fewer features while retaining most of the information, which speeds up training and makes visualisation possible."
+  },
+  {
+    "question": "What is the difference between classification and regression?",
+    "answer": "Classification predicts a discrete label - spam or not spam, which digit this is. Regression predicts a continuous number - a house price, tomorrow's temperature. Both are supervised; the difference is the type of the thing being predicted."
+  },
+  {
+    "question": "What is clustering?",
+    "answer": "Clustering groups similar data points together without any labels being provided. K-means, the most common method, splits data into k groups by repeatedly assigning each point to its nearest centre and recomputing the centres. It is used for customer segmentation and exploratory analysis."
+  },
+  {
+    "question": "What is TF-IDF?",
+    "answer": "TF-IDF turns text into numbers by weighting each word twice over. Term frequency counts how often the word appears in this document. Inverse document frequency lowers the weight of words that appear in nearly every document, since those cannot tell documents apart. Multiplying the two gives each word a score for how strongly it identifies that particular document."
+  },
+  {
+    "question": "What is cosine similarity?",
+    "answer": "Cosine similarity measures the angle between two vectors rather than the distance between them, giving a score from 0 to 1. Because it ignores length, a short question and a long, wordy version of the same question still score as a close match - which is exactly what you want when comparing texts of different sizes."
+  },
+  {
+    "question": "What is the difference between AI, machine learning and deep learning?",
+    "answer": "They are nested. AI is the broad goal of machines doing tasks that need intelligence. Machine learning is the subset that gets there by learning from data. Deep learning is the subset of machine learning that uses many-layered neural networks."
+  },
+  {
+    "question": "What is transfer learning?",
+    "answer": "Transfer learning takes a model already trained on a large dataset and adapts it to your smaller, related task, usually by retraining only the final layers. You inherit the general features the original model learned, so you need far less data and far less compute than training from scratch."
+  },
+  {
+    "question": "What is a hyperparameter?",
+    "answer": "A hyperparameter is a setting you choose before training rather than something the model learns - learning rate, number of layers, k in k-means, tree depth. They are tuned by trying combinations and comparing results on the validation set, using grid search or random search."
+  }
+]
