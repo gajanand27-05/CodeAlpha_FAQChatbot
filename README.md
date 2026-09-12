@@ -10,7 +10,10 @@ It uses classical NLP — TF-IDF and cosine similarity — with **no LLM and no 
 network**. That is a deliberate choice, explained under [Why not deep
 learning?](#why-not-deep-learning).
 
+<!-- Screenshot: save the running app to docs/screenshot.png and uncomment the line below.
 ![FAQ chatbot screenshot](docs/screenshot.png)
+-->
+
 
 ## How it works
 
@@ -92,8 +95,10 @@ entirely.
 ## Tuning
 
 The question weight and confidence threshold were not guessed. A grid search over
-both, scored against 24 cases — the 23 in `test_chatbot.py` plus the known limitation
-below — picked weight 3 / threshold 0.25 as the best cell at 23/24:
+both, scored against the 24 match-and-refusal cases in `test_chatbot.py` (23 of them
+plus the known limitation below), picked weight 3 / threshold 0.25 as the best cell
+at 23/24. The full suite is 36 cases — the other 12 cover the small-talk layer, which
+runs before the matcher and so is unaffected by these two settings.
 
 | weight ↓ / threshold → | 0.20 | 0.25 | 0.30 | 0.35 | 0.40 |
 |---|---|---|---|---|---|

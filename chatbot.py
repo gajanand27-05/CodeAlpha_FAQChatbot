@@ -37,6 +37,15 @@ CONFIDENCE_THRESHOLD = 0.25
 # building the text that FAQ is indexed against. See _build_document().
 QUESTION_WEIGHT = 3
 
+# Longer input than this is truncated before matching.
+#
+# Spell correction compares each unknown word against the whole vocabulary, so
+# cost grows with the number of unrecognised words: measured at ~0.3 ms each,
+# meaning a pasted 2000-word block took 546 ms while a real question takes under
+# 1 ms. No genuine FAQ question is anywhere near 500 characters, so cutting the
+# input costs nothing and keeps the response time flat.
+MAX_QUESTION_CHARS = 500
+
 DEFAULT_DATA_PATH = Path(__file__).parent / "data" / "faqs.json"
 
 FALLBACK_MESSAGE = (
@@ -133,8 +142,21 @@ class FAQChatbot:
 
         with open(data_path, encoding="utf-8") as f:
             self.faqs = json.load(f)
-        if not self.faqs:
-            raise ValueError(f"No FAQs found in {data_path}")
+
+        # Checked up front with a readable message. The FAQ file is the one part
+        # of this project meant to be edited by someone who is not reading the
+        # code, so a malformed entry should say which entry and what is wrong,
+        # not surface later as a bare KeyError from a list comprehension.
+        if not isinstance(self.faqs, list) or not self.faqs:
+            raise ValueError(f"{data_path} must contain a non-empty JSON list of FAQs")
+        for i, faq in enumerate(self.faqs):
+            if not isinstance(faq, dict):
+                raise ValueError(f"FAQ {i} in {data_path} is not an object")
+            missing = {"question", "answer"} - faq.keys()
+            if missing:
+                raise ValueError(f"FAQ {i} in {data_path} is missing: {', '.join(sorted(missing))}")
+            if not str(faq["question"]).strip() or not str(faq["answer"]).strip():
+                raise ValueError(f"FAQ {i} in {data_path} has an empty question or answer")
 
         self.questions = [faq["question"] for faq in self.faqs]
         self.answers = [faq["answer"] for faq in self.faqs]
@@ -227,6 +249,8 @@ class FAQChatbot:
                 text="Ask me something about AI or ML.", confident=False, score=0.0,
                 kind="fallback",
             )
+
+        user_question = user_question[:MAX_QUESTION_CHARS]
 
         small_talk = self._small_talk_reply(user_question)
         if small_talk:

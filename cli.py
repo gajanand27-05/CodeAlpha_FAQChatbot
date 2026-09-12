@@ -35,9 +35,14 @@ def main() -> None:
         print(f"\nBot: {response.text}")
 
         if debug:
-            print(f"     [score {response.score:.3f}, threshold {bot.threshold}]")
-            if response.matched_question:
-                print(f"     [matched: {response.matched_question}]")
+            if response.kind == "small_talk":
+                # No score to report - small talk never reaches the matcher, and
+                # printing 0.000 beside a correct reply misrepresents what happened.
+                print("     [small talk, matcher not used]")
+            else:
+                print(f"     [score {response.score:.3f}, threshold {bot.threshold}]")
+                if response.matched_question:
+                    print(f"     [matched: {response.matched_question}]")
 
         if response.suggestions:
             print("\n     Did you mean one of these?")
