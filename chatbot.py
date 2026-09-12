@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import difflib
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -44,6 +45,52 @@ FALLBACK_MESSAGE = (
     "or precision and recall."
 )
 
+# Greetings and pleasantries, handled before the FAQ match runs.
+#
+# "hi" is the first thing most people type, and matching it against the FAQ list
+# produces a cosine score near zero and the "I don't know" fallback - technically
+# correct and a terrible first impression. These are intents, not FAQs, so they
+# live here rather than being faked as entries in faqs.json where they would
+# pollute the vocabulary and the IDF weights.
+#
+# Matching is on the whole cleaned input, not on individual words. A user who
+# types just "hi" is greeting; a user who types "what is a hidden layer" is not,
+# even though it starts with the same two letters. Requiring the entire input to
+# match makes a false positive impossible.
+SMALL_TALK = {
+    "greeting": (
+        {
+            "hi", "hii", "hiii", "hello", "helo", "hey", "heya", "hiya", "yo",
+            "greetings", "hi there", "hello there", "hey there", "good morning",
+            "good afternoon", "good evening", "gm", "sup", "whats up",
+        },
+        "Hello. Ask me about any AI or machine learning concept - overfitting, "
+        "gradient descent, precision and recall, and so on.",
+    ),
+    "thanks": (
+        {
+            "thanks", "thank you", "thankyou", "thanks a lot", "thanks so much",
+            "thank you very much", "ty", "tysm", "cheers", "appreciate it", "nice",
+            "cool", "great", "awesome", "perfect", "helpful", "that helps",
+        },
+        "Glad that helped. Ask me another one whenever you like.",
+    ),
+    "goodbye": (
+        {"bye", "goodbye", "bye bye", "see you", "see ya", "cya", "later", "good night"},
+        "Bye. Good luck with the revision.",
+    ),
+    "identity": (
+        {
+            "who are you", "what are you", "what can you do", "help", "what do you know",
+            "how do you work", "what is this", "what can i ask", "what can i ask you",
+        },
+        "I'm an FAQ bot for AI and machine learning concepts. I don't generate "
+        "answers - I hold a fixed list of question-answer pairs and use TF-IDF and "
+        "cosine similarity to find the stored question closest to yours. If nothing "
+        "is close enough, I say so instead of guessing.",
+    ),
+}
+
 
 @dataclass
 class Match:
@@ -68,6 +115,9 @@ class Response:
     score: float
     matched_question: str | None = None
     suggestions: list[Match] | None = None
+    # "answer" - matched a FAQ; "small_talk" - a greeting or pleasantry, handled
+    # without the matcher; "fallback" - nothing scored above the threshold.
+    kind: str = "answer"
 
 
 class FAQChatbot:
@@ -156,10 +206,31 @@ class FAQChatbot:
             for i in ranked[:top_n]
         ]
 
+    @staticmethod
+    def _small_talk_reply(user_question: str) -> str | None:
+        """Return a canned reply if the whole input is a greeting or pleasantry."""
+        # Lowercase, drop anything that is not a letter or space, collapse runs
+        # of whitespace: "Hi there!!" and "  hi   there " both become "hi there".
+        normalised = re.sub(r"[^a-z\s]", "", user_question.lower())
+        normalised = " ".join(normalised.split())
+        if not normalised:
+            return None
+        for phrases, reply in SMALL_TALK.values():
+            if normalised in phrases:
+                return reply
+        return None
+
     def ask(self, user_question: str) -> Response:
         """Answer a question, or admit that it cannot."""
         if not user_question.strip():
-            return Response(text="Ask me something about AI or ML.", confident=False, score=0.0)
+            return Response(
+                text="Ask me something about AI or ML.", confident=False, score=0.0,
+                kind="fallback",
+            )
+
+        small_talk = self._small_talk_reply(user_question)
+        if small_talk:
+            return Response(text=small_talk, confident=True, score=0.0, kind="small_talk")
 
         matches = self.rank(user_question)
         best = matches[0]
@@ -173,6 +244,7 @@ class FAQChatbot:
                 confident=False,
                 score=best.score,
                 suggestions=suggestions or None,
+                kind="fallback",
             )
 
         return Response(

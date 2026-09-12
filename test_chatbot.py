@@ -63,6 +63,28 @@ KNOWN_LIMITATIONS = [
     "which university has the best machine learning course",
 ]
 
+# Greetings and pleasantries get a canned reply without the matcher running.
+SHOULD_BE_SMALL_TALK = [
+    "hi",
+    "Hello!",
+    "hey there",
+    "  Good morning  ",
+    "thanks",
+    "Thank you very much!",
+    "bye",
+    "what can you do",
+    "who are you",
+]
+
+# The guard on small talk: these contain a greeting word but are real questions
+# (or real refusals) and must not be hijacked by the small-talk layer.
+SHOULD_NOT_BE_SMALL_TALK = [
+    "what is a hidden layer",
+    "what is the difference between AI, machine learning and deep learning",
+    "hey what is overfitting",
+    "how does gradient descent help",
+]
+
 
 def main() -> int:
     bot = FAQChatbot()
@@ -87,13 +109,34 @@ def main() -> int:
         if not ok:
             failures += 1
 
+    print("\n--- should be small talk ---")
+    for question in SHOULD_BE_SMALL_TALK:
+        response = bot.ask(question)
+        ok = response.kind == "small_talk"
+        print(f"{'PASS' if ok else 'FAIL'}  {question!r} -> {response.kind}")
+        if not ok:
+            failures += 1
+
+    print("\n--- should NOT be small talk ---")
+    for question in SHOULD_NOT_BE_SMALL_TALK:
+        response = bot.ask(question)
+        ok = response.kind != "small_talk"
+        print(f"{'PASS' if ok else 'FAIL'}  {question!r} -> {response.kind}")
+        if not ok:
+            failures += 1
+
     print("\n--- known limitations (documented, not counted) ---")
     for question in KNOWN_LIMITATIONS:
         response = bot.ask(question)
         state = "refused" if not response.confident else f"answered: {response.matched_question!r}"
         print(f"KNOWN  {question!r} -> {state} ({response.score:.3f})")
 
-    total = len(SHOULD_MATCH) + len(SHOULD_REFUSE)
+    total = (
+        len(SHOULD_MATCH)
+        + len(SHOULD_REFUSE)
+        + len(SHOULD_BE_SMALL_TALK)
+        + len(SHOULD_NOT_BE_SMALL_TALK)
+    )
     print(f"\n{total - failures}/{total} passed")
     return 1 if failures else 0
 

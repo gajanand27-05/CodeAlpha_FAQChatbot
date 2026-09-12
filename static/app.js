@@ -56,25 +56,32 @@ function addBotMessage(data) {
     const meta = document.createElement("div");
     meta.className = "meta";
 
-    const bar = document.createElement("span");
-    bar.className = "score-bar";
-    const fill = document.createElement("span");
-    fill.className = data.confident ? "score-fill" : "score-fill low";
-    bar.appendChild(fill);
+    if (data.kind === "small_talk") {
+      // No score to show: small talk never reaches the matcher, and printing
+      // "0.000" next to a correct reply would misrepresent what happened.
+      meta.textContent = "small talk · matcher not used";
+      wrap.appendChild(meta);
+    } else {
+      const bar = document.createElement("span");
+      bar.className = "score-bar";
+      const fill = document.createElement("span");
+      fill.className = data.confident ? "score-fill" : "score-fill low";
+      bar.appendChild(fill);
 
-    const label = document.createElement("span");
-    label.textContent = data.matched_question
-      ? `${data.score.toFixed(3)} · matched: “${data.matched_question}”`
-      : `${data.score.toFixed(3)} · below threshold`;
+      const label = document.createElement("span");
+      label.textContent = data.matched_question
+        ? `${data.score.toFixed(3)} · matched: “${data.matched_question}”`
+        : `${data.score.toFixed(3)} · below threshold`;
 
-    meta.append(bar, label);
-    wrap.appendChild(meta);
+      meta.append(bar, label);
+      wrap.appendChild(meta);
 
-    // Set the width on the next frame so the browser has painted the 0-width
-    // state first and has something to animate away from.
-    requestAnimationFrame(() => {
-      fill.style.width = `${Math.min(data.score, 1) * 100}%`;
-    });
+      // Set the width on the next frame so the browser has painted the 0-width
+      // state first and has something to animate away from.
+      requestAnimationFrame(() => {
+        fill.style.width = `${Math.min(data.score, 1) * 100}%`;
+      });
+    }
   }
 
   if (data.suggestions && data.suggestions.length) {

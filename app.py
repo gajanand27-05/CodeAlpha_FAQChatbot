@@ -43,6 +43,7 @@ def ask():
             "confident": response.confident,
             "score": round(response.score, 3),
             "matched_question": response.matched_question,
+            "kind": response.kind,
             "suggestions": [m.question for m in (response.suggestions or [])],
         }
     )

@@ -58,7 +58,7 @@ wrong.
 
 **4. Respond** — return the best match, or refuse (see below).
 
-## Three details that do the real work
+## Four details that do the real work
 
 **A confidence threshold.** Ask an untuned bot "what is the weather in Mumbai?" and
 it still computes a score for every question, picks the highest — maybe 0.09 — and
@@ -71,6 +71,15 @@ repeated three times plus its answer. "How do I stop my model memorising the tra
 data" shares no useful word with the question *"What is overfitting?"* but plenty with
 its answer. Repeating the question keeps it in charge of the match while the answer
 broadens what can be found.
+
+**Greetings are an intent, not an FAQ.** "hi" is the first thing most people type,
+and running it through the matcher produces a near-zero score and the "I don't know"
+fallback — correct, and a terrible first impression. Greetings, thanks, goodbyes and
+"what can you do" are handled by a small intent layer *before* the matcher. They are
+not faked as entries in `faqs.json`, where they would pollute the vocabulary and skew
+the IDF weights of every real question. The layer matches on the *entire* cleaned
+input, so "hey" is a greeting while "hey what is overfitting" still reaches the
+matcher and gets its answer.
 
 **Typo correction that knows when to stay out of the way.** TF-IDF matches on exact
 string equality, so "overfiting" scores zero against "overfitting". Unknown words are
