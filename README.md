@@ -10,9 +10,11 @@ It uses classical NLP — TF-IDF and cosine similarity — with **no LLM and no 
 network**. That is a deliberate choice, explained under [Why not deep
 learning?](#why-not-deep-learning).
 
-<!-- Screenshot: save the running app to docs/screenshot.png and uncomment the line below.
-![FAQ chatbot screenshot](docs/screenshot.png)
--->
+![The chatbot answering a question, refusing an off-topic one, and replying to small talk](docs/screenshot.png)
+
+*Match scores turned on. The first answer matched at 0.578. The second question scored
+0.216, below the 0.25 threshold, so the bot refuses it and offers the nearest questions
+it does know. The last reply is small talk, which never reaches the matcher.*
 
 
 ## How it works
@@ -157,6 +159,13 @@ python cli.py            # terminal version, type 'debug' to see match scores
 python test_chatbot.py   # run the test suite
 python preprocess.py     # watch the text cleaning step by step
 ```
+
+## Interface
+
+The chat interface is plain HTML, CSS and JavaScript served by Flask. It adapts to
+small screens, with the explainer panel collapsing behind a menu button:
+
+<img src="docs/screenshot-mobile.png" alt="The chatbot on a narrow screen" width="300">
 
 ## Project layout
 
