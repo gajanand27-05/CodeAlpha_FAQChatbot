@@ -1,88 +1,54 @@
-"""Streamlit chat interface for the FAQ chatbot.
+"""Web interface for the FAQ chatbot.
 
-Run with:  streamlit run app.py
+Run with:  python app.py
+Then open http://127.0.0.1:5000
 
-All the matching logic lives in chatbot.py - this file only handles display and
-the conversation history.
+This is a thin layer: Flask serves one page and one JSON endpoint, and all the
+matching logic stays in chatbot.py. The page talks to /api/ask with fetch(), so
+only the reply is sent over the wire and the browser keeps its own state - the
+chat never re-renders from scratch between messages.
 """
 
-import streamlit as st
+from flask import Flask, jsonify, render_template, request
 
 from chatbot import FAQChatbot
 
-st.set_page_config(page_title="AI/ML FAQ Chatbot", page_icon="🤖")
+app = Flask(__name__)
+
+# Built once at import, not per request. Re-reading the JSON and re-fitting the
+# vectorizer on every message would add pointless latency to every reply.
+bot = FAQChatbot()
 
 
-@st.cache_resource
-def load_bot() -> FAQChatbot:
-    """Build the bot once and reuse it.
-
-    Without the cache decorator Streamlit would re-read the JSON and re-fit the
-    vectorizer on every single interaction, since it reruns the whole script
-    each time the user types.
-    """
-    return FAQChatbot()
-
-
-bot = load_bot()
-
-st.title("🤖 AI/ML FAQ Chatbot")
-st.caption(
-    f"Ask about machine learning concepts. {len(bot.faqs)} questions in the dataset. "
-    "Matching is TF-IDF + cosine similarity - no LLM involved."
-)
-
-with st.sidebar:
-    st.header("How it works")
-    st.markdown(
-        """
-1. **Preprocess** - lowercase, strip punctuation, drop stopwords, lemmatize
-2. **Vectorise** - TF-IDF turns the text into numbers
-3. **Compare** - cosine similarity against every stored question
-4. **Respond** - return the best match, or admit it doesn't know
-        """
+@app.route("/")
+def index():
+    return render_template(
+        "index.html",
+        questions=bot.questions,
+        faq_count=len(bot.faqs),
+        threshold=bot.threshold,
     )
-    show_scores = st.checkbox("Show match scores", value=False)
-    st.metric("Confidence threshold", f"{bot.threshold:.2f}")
-    st.caption("Below this score the bot says it doesn't know rather than guessing.")
 
-    with st.expander("Questions I can answer"):
-        for question in bot.questions:
-            st.write(f"- {question}")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "Hi. Ask me anything about AI or machine learning."}
-    ]
+@app.route("/api/ask", methods=["POST"])
+def ask():
+    payload = request.get_json(silent=True) or {}
+    question = str(payload.get("question", ""))
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
-        if message.get("caption"):
-            st.caption(message["caption"])
+    response = bot.ask(question)
 
-if prompt := st.chat_input("What is overfitting?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
-
-    response = bot.ask(prompt)
-
-    caption = None
-    if show_scores:
-        caption = f"score {response.score:.3f}"
-        if response.matched_question:
-            caption += f" · matched: “{response.matched_question}”"
-
-    with st.chat_message("assistant"):
-        st.write(response.text)
-        if caption:
-            st.caption(caption)
-        if response.suggestions:
-            st.write("Did you mean one of these?")
-            for match in response.suggestions:
-                st.write(f"- {match.question}")
-
-    st.session_state.messages.append(
-        {"role": "assistant", "content": response.text, "caption": caption}
+    return jsonify(
+        {
+            "text": response.text,
+            "confident": response.confident,
+            "score": round(response.score, 3),
+            "matched_question": response.matched_question,
+            "suggestions": [m.question for m in (response.suggestions or [])],
+        }
     )
+
+
+if __name__ == "__main__":
+    print(f"FAQ chatbot ready - {len(bot.faqs)} questions loaded.")
+    print("Open http://127.0.0.1:5000")
+    app.run(debug=False, port=5000)

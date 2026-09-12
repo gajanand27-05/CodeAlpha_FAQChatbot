@@ -1,7 +1,7 @@
 """Terminal version of the FAQ chatbot.
 
 Run with:  python cli.py
-Useful for testing the matching logic without Streamlit in the way, and for
+Useful for testing the matching logic without the web layer in the way, and for
 recording a quick demo. Type 'quit' to exit, or 'debug' to toggle showing the
 match score and which stored question was hit.
 """

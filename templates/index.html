@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI/ML FAQ Chatbot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="layout">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div class="brand-text">
+          <h1>FAQ Chatbot</h1>
+          <p>TF-IDF &middot; cosine similarity</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>How it works</h2>
+        <ol class="pipeline">
+          <li><span>1</span><div><strong>Preprocess</strong>lowercase, strip punctuation, drop stopwords, lemmatize</div></li>
+          <li><span>2</span><div><strong>Vectorise</strong>TF-IDF turns the text into numbers</div></li>
+          <li><span>3</span><div><strong>Compare</strong>cosine similarity against every stored question</div></li>
+          <li><span>4</span><div><strong>Respond</strong>best match, or admit it doesn't know</div></li>
+        </ol>
+      </div>
+
+      <div class="panel stats">
+        <div class="stat">
+          <span class="stat-value">{{ faq_count }}</span>
+          <span class="stat-label">questions</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ "%.2f"|format(threshold) }}</span>
+          <span class="stat-label">threshold</span>
+        </div>
+      </div>
+      <p class="hint">Below the threshold the bot says it doesn't know rather than guessing.</p>
+
+      <label class="toggle">
+        <input type="checkbox" id="show-scores">
+        <span class="track"><span class="thumb"></span></span>
+        <span>Show match scores</span>
+      </label>
+
+      <details class="panel questions">
+        <summary>Questions I can answer</summary>
+        <ul>
+          {% for question in questions %}
+          <li><button class="q-link" type="button">{{ question }}</button></li>
+          {% endfor %}
+        </ul>
+      </details>
+
+      <p class="credit">CodeAlpha AI Internship &middot; Task 2</p>
+    </aside>
+
+    <main class="chat">
+      <header class="chat-header">
+        <button class="icon-btn" id="menu-btn" type="button" aria-label="Toggle info panel">&#9776;</button>
+        <div>
+          <h2>AI/ML FAQ Chatbot</h2>
+          <p class="status"><span class="dot"></span>No LLM &mdash; classical NLP matching</p>
+        </div>
+      </header>
+
+      <div class="messages" id="messages">
+        <div class="msg bot">
+          <div class="avatar">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble">Hi. Ask me anything about AI or machine learning.</div>
+          </div>
+        </div>
+        <div class="starters" id="starters">
+          <button type="button">What is overfitting?</button>
+          <button type="button">Difference between precision and recall</button>
+          <button type="button">How does backpropagation work?</button>
+          <button type="button">What is the bias-variance tradeoff?</button>
+        </div>
+      </div>
+
+      <form class="composer" id="composer" autocomplete="off">
+        <input id="input" type="text" placeholder="Ask about overfitting, gradient descent, TF-IDF&hellip;" aria-label="Your question">
+        <button type="submit" id="send" aria-label="Send">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z" fill="currentColor"/>
+          </svg>
+        </button>
+      </form>
+    </main>
+
+  </div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

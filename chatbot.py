@@ -5,8 +5,9 @@ does not understand English. It holds a fixed list of question-answer pairs and
 its only job is to work out which stored question is closest to what the user
 typed, then hand back that question's answer.
 
-Keeping this file free of any UI code means the same class serves both the
-Streamlit app and the terminal version, and can be tested on its own.
+Keeping this file free of any UI code means the same class serves both the web
+app and the terminal version, and can be tested on its own. The interface was
+swapped from Streamlit to Flask without touching a line of this file.
 """
 
 from __future__ import annotations

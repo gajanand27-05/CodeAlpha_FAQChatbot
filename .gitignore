@@ -7,8 +7,9 @@ venv/
 __pycache__/
 *.py[cod]
 
-# Streamlit local settings
-.streamlit/secrets.toml
+# Flask instance folder / local secrets
+instance/
+.env
 
 # Editor / OS noise
 .vscode/

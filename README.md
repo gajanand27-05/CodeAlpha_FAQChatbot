@@ -138,7 +138,7 @@ NLTK data (`stopwords`, `wordnet`, `words`) downloads automatically on first run
 ## Usage
 
 ```bash
-streamlit run app.py     # web chat interface
+python app.py            # web chat interface, then open http://127.0.0.1:5000
 python cli.py            # terminal version, type 'debug' to see match scores
 python test_chatbot.py   # run the test suite
 python preprocess.py     # watch the text cleaning step by step
@@ -151,7 +151,8 @@ python preprocess.py     # watch the text cleaning step by step
 | `data/faqs.json` | The 38 question–answer pairs. Data is kept separate from logic so FAQs can be added without touching code |
 | `preprocess.py` | Stage 1 — text cleaning, tokenizing, lemmatizing |
 | `chatbot.py` | Stages 2–4 — vectorising, matching, confidence threshold. No UI code |
-| `app.py` | Streamlit chat interface |
+| `app.py` | Flask server — one page, one `/api/ask` JSON endpoint |
+| `templates/`, `static/` | The chat interface: HTML, CSS and vanilla JavaScript |
 | `cli.py` | Terminal interface |
 | `test_chatbot.py` | Match, refusal and known-limitation cases |
 
@@ -161,7 +162,25 @@ python preprocess.py     # watch the text cleaning step by step
 |---|---|---|
 | Text preprocessing | NLTK | Ships the stopword list, lemmatizer and English dictionary ready to use |
 | Vectorising + similarity | scikit-learn | `TfidfVectorizer` and `cosine_similarity`, two lines each and battle-tested |
-| Chat interface | Streamlit | A real web UI in pure Python |
+| Web server | Flask | Serves one page and one JSON endpoint — nothing heavier is needed |
+| Chat interface | HTML, CSS, vanilla JS | Full control over the interaction; no framework and no build step |
+
+### A note on the interface
+
+This started on Streamlit and was rewritten. Streamlit re-executes the entire
+script on every interaction and rebuilds the page from that result, so the chat
+visibly re-renders between messages and you cannot control the transitions.
+
+The replacement is a Flask endpoint plus a small front end that keeps the
+conversation in the browser and appends one element per message. Messages animate
+in, a typing indicator covers the request, and the confidence bar fills from zero.
+Only `transform` and `opacity` are animated — the browser composites those on the
+GPU, whereas animating `height` or `margin` forces a layout recalculation on every
+frame, which is what makes an interface feel heavy.
+
+The trade is roughly 300 lines of CSS and JavaScript against a UI that behaves
+exactly as intended. `chatbot.py` did not change by a single line — the matching
+logic never knew what the interface was, which is precisely why the swap was cheap.
 
 ## Author
 
