@@ -1,12 +1,12 @@
 # CodeAlpha_FAQChatbot
 
-**CodeAlpha Artificial Intelligence Internship — Task 2: Chatbot for FAQs**
+**CodeAlpha Artificial Intelligence Internship, Task 2: Chatbot for FAQs**
 
 An FAQ chatbot that answers questions about AI/ML concepts. You type a question in
 your own words; the bot finds the closest matching question in its dataset of 38
-question–answer pairs and replies with that answer.
+question-answer pairs and replies with that answer.
 
-It uses classical NLP — TF-IDF and cosine similarity — with **no LLM and no neural
+It uses classical NLP (TF-IDF and cosine similarity) with **no LLM and no neural
 network**. That is a deliberate choice, explained under [Why not deep
 learning?](#why-not-deep-learning).
 
@@ -44,29 +44,29 @@ Q8 scores 0.11                  stored question's vector
 "Overfitting is when a model memorises the training data..."
 ```
 
-**1. Preprocess** (`preprocess.py`) — lowercase, strip punctuation, tokenize, drop
+**1. Preprocess** (`preprocess.py`): lowercase, strip punctuation, tokenize, drop
 stopwords, lemmatize. `Overfitting`, `overfitting?` and `OVERFITTING` all collapse to
 the same token. Lemmatizing is used over stemming because it produces real words
 (`studies` → `study`, not `studi`), which makes intermediate output readable while
 debugging.
 
-**2. Vectorise** — TF-IDF weights each word by how often it appears in a question
+**2. Vectorise**: TF-IDF weights each word by how often it appears in a question
 (term frequency) and how rare it is across all questions (inverse document
 frequency). Words like "model" and "what" appear everywhere and are automatically
 pushed down; "backpropagation" appears once and is pushed up.
 
-**3. Compare** — cosine similarity measures the *angle* between two vectors, not the
+**3. Compare**: cosine similarity measures the *angle* between two vectors, not the
 distance. This matters: "What is overfitting?" and "Could you please explain in
 detail what overfitting actually means?" are very different lengths but point the
 same direction, so they score as a close match. Distance-based matching gets this
 wrong.
 
-**4. Respond** — return the best match, or refuse (see below).
+**4. Respond**: return the best match, or refuse (see below).
 
 ## Four details that do the real work
 
 **A confidence threshold.** Ask an untuned bot "what is the weather in Mumbai?" and
-it still computes a score for every question, picks the highest — maybe 0.09 — and
+it still computes a score for every question, picks the highest, maybe 0.09, and
 confidently explains gradient descent to someone who asked about rain. Below a
 cosine score of **0.25** this bot says it does not know instead. Knowing when you
 don't know is a property of a good system, not a nicety.
@@ -79,7 +79,7 @@ broadens what can be found.
 
 **Greetings are an intent, not an FAQ.** "hi" is the first thing most people type,
 and running it through the matcher produces a near-zero score and the "I don't know"
-fallback — correct, and a terrible first impression. Greetings, thanks, goodbyes and
+fallback, which is correct and a terrible first impression. Greetings, thanks, goodbyes and
 "what can you do" are handled by a small intent layer *before* the matcher. They are
 not faked as entries in `faqs.json`, where they would pollute the vocabulary and skew
 the IDF weights of every real question. The layer matches on the *entire* cleaned
@@ -88,7 +88,7 @@ matcher and gets its answer.
 
 **Typo correction that knows when to stay out of the way.** TF-IDF matches on exact
 string equality, so "overfiting" scores zero against "overfitting". Unknown words are
-snapped to the closest word the bot knows — but only if they are *not* in an English
+snapped to the closest word the bot knows, but only if they are *not* in an English
 dictionary. Without that guard, correcting purely by string distance rewrote real
 words into FAQ vocabulary: "who won the cricket **match**" became "**batch**", which
 matched the mini-batch gradient descent FAQ at 0.48 and defeated the threshold
@@ -99,7 +99,7 @@ entirely.
 The question weight and confidence threshold were not guessed. A grid search over
 both, scored against the 24 match-and-refusal cases in `test_chatbot.py` (23 of them
 plus the known limitation below), picked weight 3 / threshold 0.25 as the best cell
-at 23/24. The full suite is 36 cases — the other 12 cover the small-talk layer, which
+at 23/24. The full suite is 36 cases. The other 12 cover the small-talk layer, which
 runs before the matcher and so is unaffected by these two settings.
 
 | weight ↓ / threshold → | 0.20 | 0.25 | 0.30 | 0.35 | 0.40 |
@@ -110,7 +110,7 @@ runs before the matcher and so is unaffected by these two settings.
 | 4 | 22 | 22 | 22 | 21 | 21 |
 | 6 | 21 | 22 | 22 | 22 | 21 |
 
-Half the refusal test cases are deliberate near misses — "how do I train for a
+Half the refusal test cases are deliberate near misses: "how do I train for a
 marathon", "how much RAM do I need to train a model", "what is the learning curve for
 a new language". Plainly off-topic questions score 0.000 and would be refused by any
 threshold, so they prove nothing; the near misses are what actually pin the threshold
@@ -119,7 +119,7 @@ down.
 ## Known limitation
 
 "Which university has the best machine learning course" is answered with *"What is
-machine learning?"* at 0.62. No threshold fixes it — raising the bar past 0.62 would
+machine learning?"* at 0.62. No threshold fixes it. Raising the bar past 0.62 would
 refuse most genuine questions too.
 
 The cause is fundamental to the approach: TF-IDF matches on shared words, so it can
@@ -171,10 +171,10 @@ small screens, with the explainer panel collapsing behind a menu button:
 
 | File | Purpose |
 |---|---|
-| `data/faqs.json` | The 38 question–answer pairs. Data is kept separate from logic so FAQs can be added without touching code |
-| `preprocess.py` | Stage 1 — text cleaning, tokenizing, lemmatizing |
-| `chatbot.py` | Stages 2–4 — vectorising, matching, confidence threshold. No UI code |
-| `app.py` | Flask server — one page, one `/api/ask` JSON endpoint |
+| `data/faqs.json` | The 38 question-answer pairs. Data is kept separate from logic so FAQs can be added without touching code |
+| `preprocess.py` | Stage 1: text cleaning, tokenizing, lemmatizing |
+| `chatbot.py` | Stages 2 to 4: vectorising, matching, confidence threshold. No UI code |
+| `app.py` | Flask server: one page, one `/api/ask` JSON endpoint |
 | `templates/`, `static/` | The chat interface: HTML, CSS and vanilla JavaScript |
 | `cli.py` | Terminal interface |
 | `test_chatbot.py` | Match, refusal and known-limitation cases |
@@ -185,7 +185,7 @@ small screens, with the explainer panel collapsing behind a menu button:
 |---|---|---|
 | Text preprocessing | NLTK | Ships the stopword list, lemmatizer and English dictionary ready to use |
 | Vectorising + similarity | scikit-learn | `TfidfVectorizer` and `cosine_similarity`, two lines each and battle-tested |
-| Web server | Flask | Serves one page and one JSON endpoint — nothing heavier is needed |
+| Web server | Flask | Serves one page and one JSON endpoint. Nothing heavier is needed |
 | Chat interface | HTML, CSS, vanilla JS | Full control over the interaction; no framework and no build step |
 
 ### A note on the interface
@@ -197,12 +197,12 @@ visibly re-renders between messages and you cannot control the transitions.
 The replacement is a Flask endpoint plus a small front end that keeps the
 conversation in the browser and appends one element per message. Messages animate
 in, a typing indicator covers the request, and the confidence bar fills from zero.
-Only `transform` and `opacity` are animated — the browser composites those on the
+Only `transform` and `opacity` are animated. The browser composites those on the
 GPU, whereas animating `height` or `margin` forces a layout recalculation on every
 frame, which is what makes an interface feel heavy.
 
 The trade is roughly 300 lines of CSS and JavaScript against a UI that behaves
-exactly as intended. `chatbot.py` did not change by a single line — the matching
+exactly as intended. `chatbot.py` did not change by a single line. The matching
 logic never knew what the interface was, which is precisely why the swap was cheap.
 
 ## Author
