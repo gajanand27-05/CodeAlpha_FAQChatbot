@@ -61,10 +61,14 @@
 
     <main class="chat">
       <header class="chat-header">
-        <button class="icon-btn" id="menu-btn" type="button" aria-label="Toggle info panel">&#9776;</button>
+        <button class="icon-btn" id="menu-btn" type="button" aria-label="Toggle info panel">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+            <path d="M1 3h14M1 8h14M1 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div>
           <h2>AI/ML FAQ Chatbot</h2>
-          <p class="status"><span class="dot"></span>No LLM &mdash; classical NLP matching</p>
+          <p class="status"><span class="dot"></span>No LLM. Classical NLP matching.</p>
         </div>
       </header>
 

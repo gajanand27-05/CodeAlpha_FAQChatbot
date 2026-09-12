@@ -49,8 +49,8 @@ MAX_QUESTION_CHARS = 500
 DEFAULT_DATA_PATH = Path(__file__).parent / "data" / "faqs.json"
 
 FALLBACK_MESSAGE = (
-    "I don't know that one yet. I only cover AI and machine learning concepts - "
-    "try rephrasing, or ask about something like overfitting, gradient descent "
+    "I don't know that one yet. I only cover AI and machine learning concepts. "
+    "Try rephrasing, or ask about something like overfitting, gradient descent "
     "or precision and recall."
 )
 
@@ -73,7 +73,7 @@ SMALL_TALK = {
             "greetings", "hi there", "hello there", "hey there", "good morning",
             "good afternoon", "good evening", "gm", "sup", "whats up",
         },
-        "Hello. Ask me about any AI or machine learning concept - overfitting, "
+        "Hello. Ask me about any AI or machine learning concept: overfitting, "
         "gradient descent, precision and recall, and so on.",
     ),
     "thanks": (
@@ -94,7 +94,7 @@ SMALL_TALK = {
             "how do you work", "what is this", "what can i ask", "what can i ask you",
         },
         "I'm an FAQ bot for AI and machine learning concepts. I don't generate "
-        "answers - I hold a fixed list of question-answer pairs and use TF-IDF and "
+        "answers. I hold a fixed list of question-answer pairs and use TF-IDF and "
         "cosine similarity to find the stored question closest to yours. If nothing "
         "is close enough, I say so instead of guessing.",
     ),
