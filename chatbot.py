@@ -155,8 +155,18 @@ class FAQChatbot:
             missing = {"question", "answer"} - faq.keys()
             if missing:
                 raise ValueError(f"FAQ {i} in {data_path} is missing: {', '.join(sorted(missing))}")
-            if not str(faq["question"]).strip() or not str(faq["answer"]).strip():
-                raise ValueError(f"FAQ {i} in {data_path} has an empty question or answer")
+            # isinstance, not str(). str() accepts anything, so a question
+            # written as `true` or `42` passed this check and then died several
+            # frames deeper with "'bool' object has no attribute 'lower'" -
+            # exactly the bare error this block exists to prevent.
+            for field in ("question", "answer"):
+                if not isinstance(faq[field], str):
+                    raise ValueError(
+                        f"FAQ {i} in {data_path}: {field} is "
+                        f"{type(faq[field]).__name__}, not a string"
+                    )
+                if not faq[field].strip():
+                    raise ValueError(f"FAQ {i} in {data_path} has an empty {field}")
 
         self.questions = [faq["question"] for faq in self.faqs]
         self.answers = [faq["answer"] for faq in self.faqs]
