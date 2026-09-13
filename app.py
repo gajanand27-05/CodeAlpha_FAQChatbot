@@ -33,7 +33,13 @@ def index():
 @app.route("/api/ask", methods=["POST"])
 def ask():
     payload = request.get_json(silent=True) or {}
-    question = str(payload.get("question", ""))
+    question = payload.get("question", "")
+
+    # Not str(question). str(True) is "True", which the bot would dutifully
+    # preprocess and answer instead of rejecting. An error beats confidently
+    # handling something that was never a question.
+    if not isinstance(question, str):
+        return jsonify({"error": f"'question' must be a string, not {type(question).__name__}"}), 400
 
     response = bot.ask(question)
 
